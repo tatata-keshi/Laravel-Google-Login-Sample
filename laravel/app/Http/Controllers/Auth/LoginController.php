@@ -30,14 +30,14 @@ class LoginController extends Controller
     {
         $googleUser = Socialite::driver('google')->user();
 
-//        // 指定の組織のメールアドレスのみ許可する
-//        $allowedEmailDomains = ['social-db.co.jp', 'arrowlink.co.jp'];
-//
-//        $userEmailDomain = substr(strrchr($googleUser->getEmail(), "@"), 1);
-//
-//        if (!in_array($userEmailDomain, $allowedEmailDomains)) {
-//            return redirect()->route('login.fail');
-//        }
+        // 許可するドメインをここに記述する
+        $allowedEmailDomains = ['example.com', 'example.co.jp'];
+
+        $userEmailDomain = substr(strrchr($googleUser->getEmail(), "@"), 1);
+
+        if (!in_array($userEmailDomain, $allowedEmailDomains)) {
+            return redirect()->route('login.fail');
+        }
 
         $user = User::updateOrCreate([
             'google_id' => $googleUser->getId(),
