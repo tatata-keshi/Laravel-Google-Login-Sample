@@ -26,6 +26,7 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'google_id' => fake()->unique()->randomNumber(),
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
         ];

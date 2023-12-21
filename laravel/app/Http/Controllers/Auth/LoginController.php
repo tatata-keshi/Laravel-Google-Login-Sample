@@ -3,18 +3,72 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
     /**
+     * OAuthプロバイダへリダイレクトする
+     *
+     * @return RedirectResponse
+     */
+    public function redirectToGoogle(): RedirectResponse
+    {
+        return Socialite::driver('google')->with(['prompt' => 'select_account'])->redirect();
+    }
+
+    /**
+     * OAuthプロバイダからのコールバックを処理する
+     *
+     * @return RedirectResponse
+     */
+    public function handleGoogleCallback(): RedirectResponse
+    {
+        $googleUser = Socialite::driver('google')->user();
+
+//        // 指定の組織のメールアドレスのみ許可する
+//        $allowedEmailDomains = ['social-db.co.jp', 'arrowlink.co.jp'];
+//
+//        $userEmailDomain = substr(strrchr($googleUser->getEmail(), "@"), 1);
+//
+//        if (!in_array($userEmailDomain, $allowedEmailDomains)) {
+//            return redirect()->route('login.fail');
+//        }
+
+        $user = User::updateOrCreate([
+            'google_id' => $googleUser->getId(),
+        ], [
+            'name' => $googleUser->getName(),
+            'email' => $googleUser->getEmail(),
+            'avatar' => $googleUser->getAvatar(),
+        ]);
+
+        Auth::login($user);
+        return redirect()->route('user.index');
+    }
+
+    /**
+     * ログイン失敗時の画面を表示する
+     *
      * @return View
      */
-    public function show(): View
+    public function failLogin(): View
     {
-        return view('auth.login');
+        return view('login.fail');
+    }
+
+    /**
+     * ログアウトする
+     *
+     * @return RedirectResponse
+     */
+    public function logout(): RedirectResponse
+    {
+        Auth::logout();
+        return redirect()->route('welcome');
     }
 }
