@@ -23,7 +23,7 @@ services:
 
   db:
 #    M1 Macの場合は下記の1行を使う
-#    platform: linux/amd64
+    platform: linux/amd64
     build:
       context: .
       dockerfile: ./infra/docker/mysql/Dockerfile
